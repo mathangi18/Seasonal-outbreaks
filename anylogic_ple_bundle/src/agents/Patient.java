@@ -1,4 +1,3 @@
-package agents;
 
 public class Patient {
     public double x;
@@ -8,7 +7,7 @@ public class Patient {
     public boolean infected;
     public boolean hospitalized;
     public Facility targetFacility;
-    
+
     public Patient(double x, double y) {
         this.x = x;
         this.y = y;

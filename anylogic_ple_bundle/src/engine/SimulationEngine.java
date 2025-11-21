@@ -1,8 +1,4 @@
-package engine;
 
-import agents.Patient;
-import agents.Facility;
-import helpers.ModelHelpers;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,10 +29,12 @@ public class SimulationEngine {
             if (!p.hospitalized) {
                 p.x += p.vx;
                 p.y += p.vy;
-                
+
                 // Bounce off walls
-                if (p.x < 0 || p.x > width) p.vx *= -1;
-                if (p.y < 0 || p.y > height) p.vy *= -1;
+                if (p.x < 0 || p.x > width)
+                    p.vx *= -1;
+                if (p.y < 0 || p.y > height)
+                    p.vy *= -1;
             }
         }
     }

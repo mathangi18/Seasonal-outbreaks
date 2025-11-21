@@ -1,4 +1,3 @@
-package agents;
 
 public class Facility {
     public double x;

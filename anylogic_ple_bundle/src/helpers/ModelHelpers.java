@@ -1,4 +1,3 @@
-package helpers;
 
 import java.util.Random;
 
@@ -12,7 +11,7 @@ public class ModelHelpers {
     public static double randomInRange(double min, double max) {
         return min + (max - min) * random.nextDouble();
     }
-    
+
     public static boolean coinFlip(double probability) {
         return random.nextDouble() < probability;
     }
