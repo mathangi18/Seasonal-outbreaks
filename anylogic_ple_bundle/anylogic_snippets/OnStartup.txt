@@ -5,17 +5,17 @@
 traceln("--- STARTING SIMULATION SETUP ---");
 
 // 1. Initialize Engine
-simEngine = new engine.SimulationEngine(800, 600); // Assume 800x600 space
+simEngine = new SimulationEngine(800, 600); // Assume 800x600 space
 
 // 2. Create Dummy Data (since we don't have the real init logic yet)
 // In a real scenario, this might be loaded from DB or Excel
-simEngine.addFacility(new agents.Facility(100, 100, "PHC", 10));
-simEngine.addFacility(new agents.Facility(600, 400, "Private", 50));
+simEngine.addFacility(new Facility(100, 100, "PHC", 10));
+simEngine.addFacility(new Facility(600, 400, "Private", 50));
 
 for (int i=0; i<10; i++) {
-    simEngine.addPatient(new agents.Patient(helpers.ModelHelpers.randomInRange(0, 800), helpers.ModelHelpers.randomInRange(0, 600)));
-    simEngine.patients.get(i).vx = helpers.ModelHelpers.randomInRange(-2, 2);
-    simEngine.patients.get(i).vy = helpers.ModelHelpers.randomInRange(-2, 2);
+    simEngine.addPatient(new Patient(ModelHelpers.randomInRange(0, 800), ModelHelpers.randomInRange(0, 600)));
+    simEngine.patients.get(i).vx = ModelHelpers.randomInRange(-2, 2);
+    simEngine.patients.get(i).vy = ModelHelpers.randomInRange(-2, 2);
 }
 
 // 3. Try Load Images
@@ -32,7 +32,7 @@ if (imageLoadSucceeded) {
         com.anylogic.engine.presentation.ShapeGroup group = getPresentation();
         
         // Create Facility Shapes
-        for (agents.Facility f : simEngine.facilities) {
+        for (Facility f : simEngine.facilities) {
             String imgPath = pathPrefix + (f.type.equals("PHC") ? "hospital_small.png" : "hospital_big.png");
             com.anylogic.engine.presentation.ShapeImage shp = new com.anylogic.engine.presentation.ShapeImage(
                 group, true, f.x, f.y, 0.0, 
@@ -44,7 +44,7 @@ if (imageLoadSucceeded) {
         }
         
         // Create Patient Shapes
-        for (agents.Patient p : simEngine.patients) {
+        for (Patient p : simEngine.patients) {
             String imgPath = pathPrefix + "patient_doll.png";
             com.anylogic.engine.presentation.ShapeImage shp = new com.anylogic.engine.presentation.ShapeImage(
                 group, true, p.x, p.y, 0.0, 16.0, 16.0, imgPath

@@ -9,7 +9,7 @@ public boolean fallbackActive = false;
 public boolean setupComplete = false;
 
 // -- SIMULATION ENGINE --
-public engine.SimulationEngine simEngine;
+public SimulationEngine simEngine;
 
 // -- IMAGES --
 public java.awt.image.BufferedImage patientImg;
@@ -143,7 +143,7 @@ public class CustomPainter extends com.anylogic.engine.presentation.Shape {
         java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
         
         // Draw Facilities
-        for (agents.Facility f : simEngine.facilities) {
+        for (Facility f : simEngine.facilities) {
             if ("PHC".equals(f.type)) {
                 g2.setColor(java.awt.Color.BLUE);
                 g2.fillRect((int)f.x, (int)f.y, 20, 20);
@@ -158,7 +158,7 @@ public class CustomPainter extends com.anylogic.engine.presentation.Shape {
         }
         
         // Draw Patients
-        for (agents.Patient p : simEngine.patients) {
+        for (Patient p : simEngine.patients) {
             if (p.hospitalized) continue;
             g2.setColor(java.awt.Color.ORANGE);
             int r = 10;

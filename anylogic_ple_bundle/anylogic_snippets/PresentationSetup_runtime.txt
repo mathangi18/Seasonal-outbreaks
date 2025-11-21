@@ -8,7 +8,7 @@ try {
     com.anylogic.engine.presentation.ShapeGroup group = getPresentation();
     
     // Create Facility Shapes
-    for (agents.Facility f : simEngine.facilities) {
+    for (Facility f : simEngine.facilities) {
         String imgPath = pathPrefix + (f.type.equals("PHC") ? "hospital_small.png" : "hospital_big.png");
         com.anylogic.engine.presentation.ShapeImage shp = new com.anylogic.engine.presentation.ShapeImage(
             group, true, f.x, f.y, 0.0, 
@@ -20,7 +20,7 @@ try {
     }
     
     // Create Patient Shapes
-    for (agents.Patient p : simEngine.patients) {
+    for (Patient p : simEngine.patients) {
         String imgPath = pathPrefix + "patient_doll.png";
         com.anylogic.engine.presentation.ShapeImage shp = new com.anylogic.engine.presentation.ShapeImage(
             group, true, p.x, p.y, 0.0, 16.0, 16.0, imgPath
