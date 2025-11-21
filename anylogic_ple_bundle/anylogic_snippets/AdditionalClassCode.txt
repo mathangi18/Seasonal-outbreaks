@@ -25,114 +25,93 @@ public java.util.List<Object> facilityShapes = new java.util.ArrayList<>();
 // -- LOGGING --
 public void logAttempt(String msg) {
     traceln("[AG-BUNDLE] " + msg);
-    // Also write to file if possible, but traceln is good for console
+    // In a real environment, we might try to write to a log file, but traceln is safest for PLE.
 }
 
 // -- IMAGE LOADING --
 public void tryLoadImages() {
-    try {
-        // Try relative path first (works if running from project root)
-        String[] paths = {
-            "anylogic_ple_bundle/resources/images/",
-            "../anylogic_ple_bundle/resources/images/",
-            "D:/Repos/Seasonal-outbreaks/anylogic_ple_bundle/resources/images/" // Absolute fallback
-        };
+    logAttempt("Starting Image Loading...");
+    String[] imageNames = {"patient_doll.png", "hospital_small.png", "hospital_big.png", "ambulance.png"};
+    java.awt.image.BufferedImage[] loaded = new java.awt.image.BufferedImage[4];
+    
+    boolean allLoaded = true;
+    
+    for (int i=0; i<imageNames.length; i++) {
+        String name = imageNames[i];
+        java.awt.image.BufferedImage img = null;
         
-        for (String path : paths) {
-            java.io.File f = new java.io.File(path + "patient_doll.png");
-            if (f.exists()) {
-                logAttempt("Found images at: " + f.getAbsolutePath());
-                patientImg = javax.imageio.ImageIO.read(f);
-                hospitalSmallImg = javax.imageio.ImageIO.read(new java.io.File(path + "hospital_small.png"));
-                hospitalBigImg = javax.imageio.ImageIO.read(new java.io.File(path + "hospital_big.png"));
-                ambulanceImg = javax.imageio.ImageIO.read(new java.io.File(path + "ambulance.png"));
-                imageLoadSucceeded = true;
-                return;
+        // Strategy 1: Class Resource (Classpath)
+        try {
+            java.net.URL url = getClass().getResource("/" + name);
+            if (url == null) url = getClass().getResource("/resources/images/" + name);
+            if (url != null) {
+                img = javax.imageio.ImageIO.read(url);
+                logAttempt("Loaded " + name + " from classpath: " + url);
+            }
+        } catch (Exception e) { /* Ignore */ }
+        
+        // Strategy 2: File System (Relative & Absolute)
+        if (img == null) {
+            String[] paths = {
+                "anylogic_ple_bundle/resources/images/",
+                "../anylogic_ple_bundle/resources/images/",
+                "D:/Repos/Seasonal-outbreaks/anylogic_ple_bundle/resources/images/", // Absolute
+                System.getProperty("user.dir") + "/anylogic_ple_bundle/resources/images/"
+            };
+            
+            for (String path : paths) {
+                try {
+                    java.io.File f = new java.io.File(path + name);
+                    if (f.exists()) {
+                        img = javax.imageio.ImageIO.read(f);
+                        logAttempt("Loaded " + name + " from file: " + f.getAbsolutePath());
+                        break;
+                    }
+                } catch (Exception e) { /* Ignore */ }
             }
         }
-        logAttempt("FAILED to find images in standard paths.");
-    } catch (Exception e) {
-        logAttempt("Error loading images: " + e.toString());
-        e.printStackTrace();
+        
+        if (img == null) {
+            logAttempt("FAILED to load " + name);
+            allLoaded = false;
+        } else {
+            loaded[i] = img;
+        }
+    }
+    
+    if (allLoaded) {
+        patientImg = loaded[0];
+        hospitalSmallImg = loaded[1];
+        hospitalBigImg = loaded[2];
+        ambulanceImg = loaded[3];
+        imageLoadSucceeded = true;
+        logAttempt("All images loaded successfully.");
+    } else {
+        imageLoadSucceeded = false;
+        logAttempt("Image loading failed. Switching to FALLBACK.");
     }
 }
 
 // -- REFLECTION HELPERS --
 
-// Attempt to create a ShapeImage via reflection
-public Object createShapeImage(java.awt.image.BufferedImage img, double x, double y, double width, double height) {
-    try {
-        Class<?> cls = Class.forName("com.anylogic.engine.presentation.ShapeImage");
-        // Constructor: ShapeImage(ShapeGroup group, Image image, double x, double y, double width, double height, ...)
-        // Or: ShapeImage(Image image, double x, double y, double rotation, double width, double height, ...)
-        // We need to check constructors.
-        // Safest is to try to find one that takes an Image (AnyLogic Image object) or Texture.
-        
-        // AnyLogic 8.9 usually uses 'com.anylogic.engine.presentation.ShapeImage'
-        // It often takes 'com.anylogic.engine.presentation.Image' or just a path.
-        // But we have a BufferedImage.
-        // We might need to wrap it.
-        
-        // Strategy: Create a ShapeRectangle with a texture if ShapeImage is too hard, 
-        // but let's try ShapeImage first.
-        
-        // Actually, let's try to find the 'Main' presentation group first.
-        Object pres = getPresentation(); // This is standard in Agent
-        
-        // We need to instantiate ShapeImage.
-        // Let's assume we can use the constructor: ShapeImage( boolean isPublic, double x, double y, double rotation, double width, double height, String imagePath )
-        // But we want to use BufferedImage.
-        // If we can't, we might have to save to temp file or use the path we found.
-        
-        // Let's use the path if we found it on disk!
-        // If we loaded from disk, we have the path.
-        
-        // For now, return null to trigger fallback if we can't easily do it.
-        // But wait, we MUST try.
-        
-        java.lang.reflect.Constructor<?>[] ctors = cls.getConstructors();
-        for (java.lang.reflect.Constructor<?> c : ctors) {
-            // logAttempt("Ctor: " + c.toString());
-        }
-        
-        // If we have the file path, use it.
-        // ShapeImage(ShapeGroup group, boolean isPublic, double x, double y, double rotation, double width, double height, String file)
-        // This is a common signature.
-        
-        return null; // Placeholder for the complex logic in PresentationSetup_runtime
-    } catch (Exception e) {
-        return null;
-    }
-}
-
 public void enableFallbackPainter() {
+    if (fallbackActive) return;
     logAttempt("Enabling FALLBACK PAINTER (Zero-UI).");
     try {
-        // Get the presentation group
         final Object pres = getPresentation();
-        if (pres == null) return;
+        if (pres == null) {
+            logAttempt("Error: Presentation root is null.");
+            return;
+        }
         
-        // We want to override paint(Graphics2D) or add a listener.
-        // AnyLogic Shapes don't easily support adding paint listeners unless we subclass.
-        // BUT, we can try to add a custom Shape that does the drawing.
-        // We can define an inner class that extends Shape and add it!
+        // Create and attach CustomPainter
+        // We use reflection to find the 'add' method if needed, or just cast if we knew the type.
+        // But since we are in the Agent, 'getPresentation()' returns a ShapeGroup usually.
+        // We can try casting to ShapeGroup (com.anylogic.engine.presentation.ShapeGroup).
         
-        // Wait, "User CANNOT add Canvas...". 
-        // But *I* can define a class in Additional Class Code that extends Shape!
-        // Yes!
-        
-        // See CustomPainter class below.
-        
-        // Add it to presentation
-        // pres.add(new CustomPainter(this)); -> via reflection to be safe? 
-        // No, if we define the class here, we can use it.
-        // But 'Shape' might need to be fully qualified.
-        
-        Object customPainter = new CustomPainter(this);
-        
-        // pres.add(customPainter);
-        java.lang.reflect.Method addMethod = pres.getClass().getMethod("add", com.anylogic.engine.presentation.Shape.class);
-        addMethod.invoke(pres, customPainter);
+        com.anylogic.engine.presentation.ShapeGroup group = (com.anylogic.engine.presentation.ShapeGroup) pres;
+        CustomPainter painter = new CustomPainter(this);
+        group.add(painter);
         
         logAttempt("Fallback painter attached successfully.");
         fallbackActive = true;
@@ -145,24 +124,19 @@ public void enableFallbackPainter() {
 
 // -- CUSTOM PAINTER CLASS (Inner Class) --
 public class CustomPainter extends com.anylogic.engine.presentation.Shape {
-    Object agent;
+    Object agent; // Reference to the main agent
     
     public CustomPainter(Object agent) {
         super();
         this.agent = agent;
-        // Set visible, etc.
         setVisible(true);
     }
     
     @Override
     public void paint(java.awt.Graphics2D g, com.anylogic.engine.presentation.ShapeDrawMode mode, boolean publicOnly) {
-        // This is where we draw!
-        // We need to access the agent's data.
-        // Since this is an inner class (or static nested), we need access.
-        // If non-static inner, we can access outer fields.
-        // But 'Additional Class Code' puts code INSIDE the Agent class.
-        // So 'CustomPainter' is an inner class of Main.
-        // So we can access 'simEngine' directly!
+        // Access fields via reflection or direct access if we are inner class
+        // Since this is pasted into Additional Class Code, it is an inner class of Main.
+        // We can access 'simEngine' directly.
         
         if (simEngine == null) return;
         
@@ -201,12 +175,7 @@ public class CustomPainter extends com.anylogic.engine.presentation.Shape {
     }
 
     @Override
-    public boolean contains(double px, double py) {
-        return false; // Not clickable
-    }
-    
+    public boolean contains(double px, double py) { return false; }
     @Override
-    public com.anylogic.engine.presentation.Shape clone() {
-        return null; // Not needed
-    }
+    public com.anylogic.engine.presentation.Shape clone() { return null; }
 }

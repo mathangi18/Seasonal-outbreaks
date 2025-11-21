@@ -1,0 +1,10 @@
+--- STARTING JAVA IMAGE LOADER TEST ---
+Attempting to load: D:\Repos\Seasonal-outbreaks\anylogic_ple_bundle\tools\..\resources\images\patient_doll.png
+SUCCESS: Loaded patient_doll.png (1024x1024)
+Attempting to load: D:\Repos\Seasonal-outbreaks\anylogic_ple_bundle\tools\..\resources\images\hospital_small.png
+SUCCESS: Loaded hospital_small.png (1024x1024)
+Attempting to load: D:\Repos\Seasonal-outbreaks\anylogic_ple_bundle\tools\..\resources\images\hospital_big.png
+SUCCESS: Loaded hospital_big.png (1024x1024)
+Attempting to load: D:\Repos\Seasonal-outbreaks\anylogic_ple_bundle\tools\..\resources\images\ambulance.png
+SUCCESS: Loaded ambulance.png (1024x1024)
+VERDICT: IMAGES_WORKED
