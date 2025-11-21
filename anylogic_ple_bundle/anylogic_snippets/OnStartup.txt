@@ -1,0 +1,67 @@
+// ============================================================
+// ANYLOGIC PLE BUNDLE - ON STARTUP
+// ============================================================
+
+traceln("--- STARTING SIMULATION SETUP ---");
+
+// 1. Initialize Engine
+simEngine = new engine.SimulationEngine(800, 600); // Assume 800x600 space
+
+// 2. Create Dummy Data (since we don't have the real init logic yet)
+// In a real scenario, this might be loaded from DB or Excel
+simEngine.addFacility(new agents.Facility(100, 100, "PHC", 10));
+simEngine.addFacility(new agents.Facility(600, 400, "Private", 50));
+
+for (int i=0; i<10; i++) {
+    simEngine.addPatient(new agents.Patient(helpers.ModelHelpers.randomInRange(0, 800), helpers.ModelHelpers.randomInRange(0, 600)));
+    simEngine.patients.get(i).vx = helpers.ModelHelpers.randomInRange(-2, 2);
+    simEngine.patients.get(i).vy = helpers.ModelHelpers.randomInRange(-2, 2);
+}
+
+// 3. Try Load Images
+tryLoadImages();
+
+// 4. Setup Presentation
+if (imageLoadSucceeded) {
+    // Try to create runtime images
+    // We will use the paths we found
+    try {
+        String pathPrefix = "D:/Repos/Seasonal-outbreaks/anylogic_ple_bundle/resources/images/";
+        // Note: In AnyLogic, absolute paths in ShapeImage usually work.
+        
+        com.anylogic.engine.presentation.ShapeGroup group = getPresentation();
+        
+        // Create Facility Shapes
+        for (agents.Facility f : simEngine.facilities) {
+            String imgPath = pathPrefix + (f.type.equals("PHC") ? "hospital_small.png" : "hospital_big.png");
+            com.anylogic.engine.presentation.ShapeImage shp = new com.anylogic.engine.presentation.ShapeImage(
+                group, true, f.x, f.y, 0.0, 
+                f.type.equals("PHC") ? 32.0 : 64.0, 
+                f.type.equals("PHC") ? 32.0 : 64.0, 
+                imgPath
+            );
+            facilityShapes.add(shp);
+        }
+        
+        // Create Patient Shapes
+        for (agents.Patient p : simEngine.patients) {
+            String imgPath = pathPrefix + "patient_doll.png";
+            com.anylogic.engine.presentation.ShapeImage shp = new com.anylogic.engine.presentation.ShapeImage(
+                group, true, p.x, p.y, 0.0, 16.0, 16.0, imgPath
+            );
+            patientShapes.add(shp);
+        }
+        
+        useImages = true;
+        traceln("Visuals created using IMAGES.");
+        
+    } catch (Exception e) {
+        traceln("Failed to create image shapes: " + e.getMessage());
+        e.printStackTrace();
+        enableFallbackPainter();
+    }
+} else {
+    enableFallbackPainter();
+}
+
+setupComplete = true;

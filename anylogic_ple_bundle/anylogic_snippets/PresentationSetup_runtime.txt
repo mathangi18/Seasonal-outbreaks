@@ -1,0 +1,38 @@
+// ============================================================
+// PRESENTATION SETUP - RUNTIME (REFLECTION/CODE)
+// ============================================================
+// Paste this into a function or OnStartup if you want to separate it.
+
+try {
+    String pathPrefix = "D:/Repos/Seasonal-outbreaks/anylogic_ple_bundle/resources/images/";
+    com.anylogic.engine.presentation.ShapeGroup group = getPresentation();
+    
+    // Create Facility Shapes
+    for (agents.Facility f : simEngine.facilities) {
+        String imgPath = pathPrefix + (f.type.equals("PHC") ? "hospital_small.png" : "hospital_big.png");
+        com.anylogic.engine.presentation.ShapeImage shp = new com.anylogic.engine.presentation.ShapeImage(
+            group, true, f.x, f.y, 0.0, 
+            f.type.equals("PHC") ? 32.0 : 64.0, 
+            f.type.equals("PHC") ? 32.0 : 64.0, 
+            imgPath
+        );
+        facilityShapes.add(shp);
+    }
+    
+    // Create Patient Shapes
+    for (agents.Patient p : simEngine.patients) {
+        String imgPath = pathPrefix + "patient_doll.png";
+        com.anylogic.engine.presentation.ShapeImage shp = new com.anylogic.engine.presentation.ShapeImage(
+            group, true, p.x, p.y, 0.0, 16.0, 16.0, imgPath
+        );
+        patientShapes.add(shp);
+    }
+    
+    useImages = true;
+    traceln("Visuals created using IMAGES.");
+    
+} catch (Exception e) {
+    traceln("Failed to create image shapes: " + e.getMessage());
+    e.printStackTrace();
+    enableFallbackPainter();
+}

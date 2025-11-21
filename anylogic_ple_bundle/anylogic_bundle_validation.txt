@@ -1,0 +1,8 @@
+Checking Environment...
+OK: patient_doll.png found.
+OK: hospital_small.png found.
+OK: hospital_big.png found.
+OK: ambulance.png found.
+OK: JDK found.
+OK: Python found.
+Environment Validation PASSED (Images present).

@@ -1,0 +1,26 @@
+// ============================================================
+// ANYLOGIC PLE BUNDLE - ON STEP
+// ============================================================
+
+if (!setupComplete) return;
+
+// 1. Update Physics
+simEngine.step();
+
+// 2. Update Visuals
+if (useImages) {
+    // Update Patient Positions
+    for (int i=0; i<simEngine.patients.size(); i++) {
+        agents.Patient p = simEngine.patients.get(i);
+        if (i < patientShapes.size()) {
+            com.anylogic.engine.presentation.ShapeImage shp = (com.anylogic.engine.presentation.ShapeImage) patientShapes.get(i);
+            shp.setPos(p.x - 8, p.y - 8); // Center it (assuming 16x16)
+            shp.setVisible(!p.hospitalized);
+        }
+    }
+} else if (fallbackActive) {
+    // Trigger repaint
+    // The CustomPainter paints every frame automatically if the engine repaints.
+    // But we might need to force it.
+    getPresentation().refresh(); // This usually forces a redraw
+}
