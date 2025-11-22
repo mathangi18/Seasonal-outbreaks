@@ -2,66 +2,68 @@
 // ANYLOGIC PLE BUNDLE - ON STARTUP
 // ============================================================
 
-traceln("--- STARTING SIMULATION SETUP ---");
+traceln("--- STARTING MINIMAL PLE SIMULATION ---");
 
-// 1. Initialize Engine
-simEngine = new SimulationEngine(800, 600); // Assume 800x600 space
+// 1. Init Engine
+simEngine = new SimulationEngine(800, 600);
 
-// 2. Create Dummy Data (since we don't have the real init logic yet)
-// In a real scenario, this might be loaded from DB or Excel
-simEngine.addFacility(new Facility(100, 100, "PHC", 10));
-simEngine.addFacility(new Facility(600, 400, "Private", 50));
+// 2. Add Facilities
+// PHC
+Facility phc = new Facility(100, 100, "PHC", 10);
+simEngine.addFacility(phc);
+// Private
+Facility pvt = new Facility(600, 400, "Private", 50);
+simEngine.addFacility(pvt);
 
-for (int i=0; i<10; i++) {
-    simEngine.addPatient(new Patient(ModelHelpers.randomInRange(0, 800), ModelHelpers.randomInRange(0, 600)));
-    simEngine.patients.get(i).vx = ModelHelpers.randomInRange(-2, 2);
-    simEngine.patients.get(i).vy = ModelHelpers.randomInRange(-2, 2);
+// 3. Add Patients
+for (int i=0; i<NUM_PATIENTS; i++) {
+    double x = ModelHelpers.randomInRange(0, 800);
+    double y = ModelHelpers.randomInRange(0, 600);
+    Patient p = new Patient(x, y);
+    // Random velocity
+    p.vx = ModelHelpers.randomInRange(-2, 2);
+    p.vy = ModelHelpers.randomInRange(-2, 2);
+    // Infect a few
+    if (i < 3) p.infected = true;
+    
+    simEngine.addPatient(p);
 }
 
-// 3. Try Load Images
-tryLoadImages();
+// 4. Create Visuals (Runtime Shapes)
+com.anylogic.engine.presentation.ShapeGroup group = getPresentation();
 
-// 4. Setup Presentation
-if (imageLoadSucceeded) {
-    // Try to create runtime images
-    // We will use the paths we found
-    try {
-        String pathPrefix = "D:/Repos/Seasonal-outbreaks/anylogic_ple_bundle/resources/images/";
-        // Note: In AnyLogic, absolute paths in ShapeImage usually work.
-        
-        com.anylogic.engine.presentation.ShapeGroup group = getPresentation();
-        
-        // Create Facility Shapes
-        for (Facility f : simEngine.facilities) {
-            String imgPath = pathPrefix + (f.type.equals("PHC") ? "hospital_small.png" : "hospital_big.png");
-            com.anylogic.engine.presentation.ShapeImage shp = new com.anylogic.engine.presentation.ShapeImage(
-                group, true, f.x, f.y, 0.0, 
-                f.type.equals("PHC") ? 32.0 : 64.0, 
-                f.type.equals("PHC") ? 32.0 : 64.0, 
-                imgPath
-            );
-            facilityShapes.add(shp);
-        }
-        
-        // Create Patient Shapes
-        for (Patient p : simEngine.patients) {
-            String imgPath = pathPrefix + "patient_doll.png";
-            com.anylogic.engine.presentation.ShapeImage shp = new com.anylogic.engine.presentation.ShapeImage(
-                group, true, p.x, p.y, 0.0, 16.0, 16.0, imgPath
-            );
-            patientShapes.add(shp);
-        }
-        
-        useImages = true;
-        traceln("Visuals created using IMAGES.");
-        
-    } catch (Exception e) {
-        traceln("Failed to create image shapes: " + e.getMessage());
-        e.printStackTrace();
-        enableFallbackPainter();
-    }
-} else {
-    enableFallbackPainter();
+// Facilities
+for (Facility f : simEngine.facilities) {
+    com.anylogic.engine.presentation.ShapeRectangle rect = new com.anylogic.engine.presentation.ShapeRectangle(
+        group, true, f.x, f.y, 0.0, 
+        f.type.equals("PHC") ? 20.0 : 40.0, 
+        f.type.equals("PHC") ? 20.0 : 40.0,
+        f.type.equals("PHC") ? java.awt.Color.BLUE : java.awt.Color.RED,
+        java.awt.Color.BLACK, 1.0, 
+        com.anylogic.engine.presentation.LineStyle.SOLID
+    );
+    facilityShapes.add(rect);
 }
 
-setupComplete = true;
+// Patients
+for (Patient p : simEngine.patients) {
+    com.anylogic.engine.presentation.ShapeOval oval = new com.anylogic.engine.presentation.ShapeOval(
+        group, true, p.x, p.y, 0.0, 
+        PATIENT_RADIUS*2, PATIENT_RADIUS*2,
+        p.infected ? java.awt.Color.RED : java.awt.Color.GREEN,
+        java.awt.Color.BLACK, 1.0,
+        com.anylogic.engine.presentation.LineStyle.SOLID
+    );
+    patientShapes.add(oval);
+}
+
+// Scoreboard
+scoreboardText = new com.anylogic.engine.presentation.ShapeText(
+    group, true, 10.0, 10.0, 0.0, 
+    java.awt.Color.BLACK, "Stats: Loading...",
+    new java.awt.Font("SansSerif", java.awt.Font.BOLD, 14),
+    com.anylogic.engine.presentation.ShapeText.ALIGNMENT_LEFT
+);
+
+setupDone = true;
+traceln("Setup Complete.");

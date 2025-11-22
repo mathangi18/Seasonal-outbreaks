@@ -2,180 +2,28 @@
 // ANYLOGIC PLE BUNDLE - ADDITIONAL CLASS CODE
 // ============================================================
 
-// -- FLAGS & STATE --
-public boolean useImages = false;
-public boolean imageLoadSucceeded = false;
-public boolean fallbackActive = false;
-public boolean setupComplete = false;
+// -- CONSTANTS --
+public static final int NUM_PATIENTS = 50;
+public static final double PATIENT_RADIUS = 5.0;
+public static final double HOSPITAL_SIZE = 20.0;
 
-// -- SIMULATION ENGINE --
+// -- STATE --
+public boolean setupDone = false;
 public SimulationEngine simEngine;
 
-// -- IMAGES --
-public java.awt.image.BufferedImage patientImg;
-public java.awt.image.BufferedImage hospitalSmallImg;
-public java.awt.image.BufferedImage hospitalBigImg;
-public java.awt.image.BufferedImage ambulanceImg;
-
-// -- PRESENTATION REFLECTION --
-public Object rootPresentation; // The Group or Presentation object
+// -- VISUALS --
+// We use Object list to avoid import issues in snippets, but we cast to Shape in code
 public java.util.List<Object> patientShapes = new java.util.ArrayList<>();
 public java.util.List<Object> facilityShapes = new java.util.ArrayList<>();
+public com.anylogic.engine.presentation.ShapeText scoreboardText;
+
+// -- SCALING HELPERS --
+// Simple identity for now, but good practice to have
+public double sx(double v) { return v; }
+public double sy(double v) { return v; }
+public double ss(double v) { return v; }
 
 // -- LOGGING --
-public void logAttempt(String msg) {
-    traceln("[AG-BUNDLE] " + msg);
-    // In a real environment, we might try to write to a log file, but traceln is safest for PLE.
-}
-
-// -- IMAGE LOADING --
-public void tryLoadImages() {
-    logAttempt("Starting Image Loading...");
-    String[] imageNames = {"patient_doll.png", "hospital_small.png", "hospital_big.png", "ambulance.png"};
-    java.awt.image.BufferedImage[] loaded = new java.awt.image.BufferedImage[4];
-    
-    boolean allLoaded = true;
-    
-    for (int i=0; i<imageNames.length; i++) {
-        String name = imageNames[i];
-        java.awt.image.BufferedImage img = null;
-        
-        // Strategy 1: Class Resource (Classpath)
-        try {
-            java.net.URL url = getClass().getResource("/" + name);
-            if (url == null) url = getClass().getResource("/resources/images/" + name);
-            if (url != null) {
-                img = javax.imageio.ImageIO.read(url);
-                logAttempt("Loaded " + name + " from classpath: " + url);
-            }
-        } catch (Exception e) { /* Ignore */ }
-        
-        // Strategy 2: File System (Relative & Absolute)
-        if (img == null) {
-            String[] paths = {
-                "anylogic_ple_bundle/resources/images/",
-                "../anylogic_ple_bundle/resources/images/",
-                "D:/Repos/Seasonal-outbreaks/anylogic_ple_bundle/resources/images/", // Absolute
-                System.getProperty("user.dir") + "/anylogic_ple_bundle/resources/images/"
-            };
-            
-            for (String path : paths) {
-                try {
-                    java.io.File f = new java.io.File(path + name);
-                    if (f.exists()) {
-                        img = javax.imageio.ImageIO.read(f);
-                        logAttempt("Loaded " + name + " from file: " + f.getAbsolutePath());
-                        break;
-                    }
-                } catch (Exception e) { /* Ignore */ }
-            }
-        }
-        
-        if (img == null) {
-            logAttempt("FAILED to load " + name);
-            allLoaded = false;
-        } else {
-            loaded[i] = img;
-        }
-    }
-    
-    if (allLoaded) {
-        patientImg = loaded[0];
-        hospitalSmallImg = loaded[1];
-        hospitalBigImg = loaded[2];
-        ambulanceImg = loaded[3];
-        imageLoadSucceeded = true;
-        logAttempt("All images loaded successfully.");
-    } else {
-        imageLoadSucceeded = false;
-        logAttempt("Image loading failed. Switching to FALLBACK.");
-    }
-}
-
-// -- REFLECTION HELPERS --
-
-public void enableFallbackPainter() {
-    if (fallbackActive) return;
-    logAttempt("Enabling FALLBACK PAINTER (Zero-UI).");
-    try {
-        final Object pres = getPresentation();
-        if (pres == null) {
-            logAttempt("Error: Presentation root is null.");
-            return;
-        }
-        
-        // Create and attach CustomPainter
-        // We use reflection to find the 'add' method if needed, or just cast if we knew the type.
-        // But since we are in the Agent, 'getPresentation()' returns a ShapeGroup usually.
-        // We can try casting to ShapeGroup (com.anylogic.engine.presentation.ShapeGroup).
-        
-        com.anylogic.engine.presentation.ShapeGroup group = (com.anylogic.engine.presentation.ShapeGroup) pres;
-        CustomPainter painter = new CustomPainter(this);
-        group.add(painter);
-        
-        logAttempt("Fallback painter attached successfully.");
-        fallbackActive = true;
-        
-    } catch (Exception e) {
-        logAttempt("Failed to enable fallback painter: " + e.toString());
-        e.printStackTrace();
-    }
-}
-
-// -- CUSTOM PAINTER CLASS (Inner Class) --
-public class CustomPainter extends com.anylogic.engine.presentation.Shape {
-    Object agent; // Reference to the main agent
-    
-    public CustomPainter(Object agent) {
-        super();
-        this.agent = agent;
-        setVisible(true);
-    }
-    
-    @Override
-    public void paint(java.awt.Graphics2D g, com.anylogic.engine.presentation.ShapeDrawMode mode, boolean publicOnly) {
-        // Access fields via reflection or direct access if we are inner class
-        // Since this is pasted into Additional Class Code, it is an inner class of Main.
-        // We can access 'simEngine' directly.
-        
-        if (simEngine == null) return;
-        
-        java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
-        
-        // Draw Facilities
-        for (Facility f : simEngine.facilities) {
-            if ("PHC".equals(f.type)) {
-                g2.setColor(java.awt.Color.BLUE);
-                g2.fillRect((int)f.x, (int)f.y, 20, 20);
-                g2.setColor(java.awt.Color.WHITE);
-                g2.drawString("PHC", (int)f.x, (int)f.y+15);
-            } else {
-                g2.setColor(java.awt.Color.RED);
-                g2.fillRect((int)f.x, (int)f.y, 40, 40);
-                g2.setColor(java.awt.Color.WHITE);
-                g2.drawString("HOSP", (int)f.x, (int)f.y+25);
-            }
-        }
-        
-        // Draw Patients
-        for (Patient p : simEngine.patients) {
-            if (p.hospitalized) continue;
-            g2.setColor(java.awt.Color.ORANGE);
-            int r = 10;
-            g2.fillOval((int)p.x - r/2, (int)p.y - r/2, r, r);
-            // Face
-            g2.setColor(java.awt.Color.BLACK);
-            g2.drawOval((int)p.x - r/2, (int)p.y - r/2, r, r);
-            g2.drawLine((int)p.x - 2, (int)p.y - 1, (int)p.x - 2, (int)p.y - 1); // Eye
-            g2.drawLine((int)p.x + 2, (int)p.y - 1, (int)p.x + 2, (int)p.y - 1); // Eye
-            g2.drawArc((int)p.x - 3, (int)p.y - 3, 6, 6, 0, -180); // Smile
-        }
-        
-        g2.dispose();
-    }
-
-    @Override
-    public boolean contains(double px, double py) { return false; }
-    @Override
-    public com.anylogic.engine.presentation.Shape clone() { return null; }
+public void log(String msg) {
+    traceln("[PLE-MINIMAL] " + msg);
 }
