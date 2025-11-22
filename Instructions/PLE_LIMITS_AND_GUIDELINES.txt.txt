@@ -1,0 +1,176 @@
+PLE_LIMITS_AND_GUIDELINES.txt
+=============================
+
+Files for AG / reference (local paths)
+-------------------------------------
+/mnt/data/How to... _ AnyLogic Help.html
+/mnt/data/seasonal outbreak - Revised.docx
+
+OVERVIEW — purpose of this file
+-------------------------------
+This single reference contains: (A) PLE hard constraints, (B) what *can* be done in AnyLogic PLE 8.9.6, (C) what *cannot* be done, (D) concrete errors we encountered + fixes, (E) safe coding rules & fallbacks, and (F) a pre-run checklist. Use this as the authoritative guide whenever you edit the model or run AG.
+
+A. PLE HARD RULES (absolute do NOT break)
+-----------------------------------------
+1) NO package declarations in any Java files. All classes must be in the default package.
+2) NO paint(Graphics2D) overrides or custom painting methods.
+3) NO subclassing of AnyLogic Shape classes (do not create class MyShape extends Shape).
+4) NO Canvas On-draw usage — PLE does not expose On draw fields.
+5) NO calling enterprise-only APIs such as getPresentation(), getModel().
+6) DO NOT paste converted shape Java code that contains paint overrides or package lines.
+7) AVOID using ShapeImage constructors not present in PLE — always guard with try/catch.
+8) Do not rely on enterprise features: no GIS, no advanced animation palettes, no enterprise experiments.
+
+B. WHAT *CAN* BE DONE IN PLE (allowed, safe)
+--------------------------------------------
+✔ Runtime creation of standard shapes:
+   - ShapeOval, ShapeRectangle, ShapeImage (guarded), ShapeText, ShapeLine, ShapeGroup.
+
+✔ Presentation control via code:
+   - setPos(x,y), setVisible(boolean), setFillColor(Color), setText(String)
+
+✔ Sound playback:
+   - Java AudioSystem Clip (if available) with fallback to java.awt.Toolkit.beep().
+
+✔ Full simulation logic in Java:
+   - movement, infection spread, severity classes, hospitalization logic, recovery timers, scoring.
+
+✔ Runtime logging & CSV export:
+   - FileWriter to `logs/` in model folder.
+
+✔ Minimal plotting:
+   - TimePlot/XYPlot objects (keep minimal to remain PLE-safe).
+
+✔ Resource loading:
+   - Load images from classpath or `resources/images/`; sounds from `resources/sounds/`.
+   - If resources missing, code must gracefully fall back to shapes/beeps.
+
+C. WHAT *CANNOT* BE DONE IN PLE (absolute no-no list)
+-----------------------------------------------------
+✘ Canvas On draw (not supported)
+✘ Subclassing Shape or custom Shape classes
+✘ paint(Graphics2D) overrides
+✘ Converting shapes to Java code (button disabled)
+✘ getPresentation(), getModel()
+✘ Enterprise-only ShapeImage constructors (some constructors may not exist)
+✘ Multi-layer advanced presentation features
+✘ Creating Canvas at runtime
+
+D. ERRORS WE ENCOUNTERED — cause and exact fix (copy/paste friendly)
+-------------------------------------------------------------------
+1) "paint(Graphics2D...) must override or implement a method"
+   - Cause: custom Shape subclass or pasted paint override.
+   - Fix: Remove paint(...) overrides. Re-implement visuals using runtime ShapeOval/ShapeRectangle/ShapeImage.
+
+2) "Cannot call getPresentation()/getModel()"
+   - Cause: enterprise-only API usage.
+   - Fix: Remove calls. Use `level` group as parent for all runtime shapes.
+
+3) "constructor ShapeImage(...) is undefined" or "No such constructor"
+   - Cause: constructor signature mismatch / enterprise-only signature.
+   - Fix: Wrap ShapeImage creation in try/catch. On failure, create ShapeOval fallback. Use minimal PLE constructor pattern when available.
+
+4) "Cannot find Java class due to package"
+   - Cause: Java files contain `package` line.
+   - Fix: Remove package lines; keep classes in default package.
+
+5) "Canvas On-draw box not visible"
+   - Cause: Canvas On Draw not present in PLE.
+   - Fix: Delete Canvas usage; replace all drawing with runtime shapes under `level`.
+
+6) "Shapes too large / can't see entire view"
+   - Cause: Presentation `level` bbox mismatch vs. world constants; oversized PATIENT_RADIUS.
+   - Fix: Set `level` size to WORLD_W x WORLD_H (e.g., 880x540); set experiment window to 960x640; reduce PATIENT_RADIUS (3–6).
+
+7) "Shapes not moving"
+   - Cause: On step recurrence disabled OR previous Java errors stopped execution.
+   - Fix: Enable On step recurrence (e.g., 0.1 hours). Fix earlier compile/runtime errors.
+
+8) NullPointerException referencing shape methods
+   - Cause: patientShapes list size different from simEngine.patients list.
+   - Fix: Ensure shapes are created and appended in the same loop that creates patient objects; guard all shape access with index checks or null checks.
+
+9) Sounds don't play
+   - Cause: OS or Java audio system issues.
+   - Fix: Fall back to Toolkit.beep(); verify WAVs are PCM WAV and placed at resources/sounds/.
+
+E. SAFE RULES & CODING PATTERNS (copy these into your snippets)
+---------------------------------------------------------------
+1) All dynamic visuals MUST be children of:
+      Main → Presentation → level
+   Do not add other presentation groups that the code depends on.
+
+2) Create shapes at runtime inside On startup. Example pattern:
+   try {
+       Shape s = new ShapeImage(level, true, x, y, 0.0, w, h, "resources/images/foo.png");
+   } catch (Throwable t) {
+       ShapeOval o = new ShapeOval(level, true, x, y, 0.0, w, h, ShapeDrawMode.FILL);
+       o.setFillColor(Color.decode("#ffcc66"));
+   }
+
+3) Wrap all resource loading with try/catch and test for null. Set `useImages = true` only if *all* required images are loaded.
+
+4) Expose code-only toggles — prefer methods over UI buttons:
+   - addPatients(int n), toggleLockdown(boolean on), triggerSeasonalSpike(int n)
+
+5) Use constants for world and visuals:
+   - WORLD_W = 880, WORLD_H = 540
+   - PATIENT_RADIUS = 3–6
+   - FACILITY_SIZES: PHC = 36×26, Private = 72×46
+
+6) Update positions & states inside On step only. Keep movement/infection logic out of any presentation handlers.
+
+7) Keep arrays/lists consistent:
+   - simEngine.patients and patientShapes must be appended/removed together.
+   - When hiding hospitalized patients, setShape.setVisible(false) rather than deleting shapes.
+
+8) Shape updates: use reflection guarded with try/catch only for safety, but prefer direct API when available:
+   - shape.setPos(x,y); shape.setVisible(boolean); ((ShapeOval)shape).setFillColor(color);
+
+9) Sound playback: try AudioSystem/Clip, else Toolkit.beep().
+
+10) Logging: print short AG-prefixed traces: traceln("[AG] Startup...") so AG/test scripts can parse logs easily.
+
+F. PRE-RUN CHECKLIST (do this before pressing Run)
+---------------------------------------------------
+1) Clean the Presentation tree:
+   - Delete all auto-created leftover shapes under Main → Presentation → level EXCEPT:
+       mapCanvas
+       phcShape
+       privateShape
+
+2) Copy resources:
+   - Ensure `resources/images/` and `resources/sounds/` are next to the .alp file as committed by AG (or copied manually).
+
+3) Paste code snippets (exactly) into:
+   - Main → Advanced Java → Additional class code
+   - Main → On startup
+   - Main → On step
+   - Add default-package Java classes in Project: Patient.java, Facility.java, SimulationEngine.java if not present.
+
+4) Presentation sizing:
+   - Set level size to WORLD_W x WORLD_H (e.g., 880 x 540).
+   - Set Simulation experiment Window size to 960 x 640.
+
+5) On step recurrence:
+   - Enable recurrence in the Simulation experiment (e.g., 0.1 hours).
+
+6) Run and observe console:
+   - First lines should show "[AG] Startup" and images/sounds loaded or fallback messages.
+   - If any error appears, copy the exact Problems pane text and the first ~30 console lines and send back.
+
+G. QUICK TROUBLESHOOTING (first things to check)
+------------------------------------------------
+- If shapes are gigantic or off-screen → level size mismatch, or PATIENT_RADIUS too large.
+- If shapes don't move → On step recurrence disabled OR runtime exception occurred (check Problems).
+- If images fail to load → check file names and `resources/images/` path and file permissions.
+- If ShapeImage constructor thrown → fallback to ShapeOval should have prevented crash; if crash, send Problems text.
+
+H. GOLDEN TEMPLATE (copy/paste snippet checklist)
+-------------------------------------------------
+- Keep only: level group, phcShape, privateShape, mapCanvas in Presentation.
+- Use these APIs only for visuals: new ShapeOval(...), new ShapeRectangle(...), new ShapeText(...), new ShapeImage(...) [guarded].
+- Move shapes with setPos(x,y) and color using setFillColor().
+
+END OF FILE
+=============================
