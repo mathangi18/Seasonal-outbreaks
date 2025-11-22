@@ -101,6 +101,4 @@ If you need to report a bug, please provide:
 2.  Copy of the first 50 lines of the `Console` output.
 3.  The `repo_validation/validation_report.txt` file.
 
-## Contact
-*   Primary: AG
-*   Teammates: [Placeholders]
+
