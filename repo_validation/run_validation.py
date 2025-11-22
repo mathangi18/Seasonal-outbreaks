@@ -20,21 +20,23 @@ def main():
         # 1. Run PLE Lint
         f.write("Running PLE Lint...\n")
         print("Running PLE Lint...")
-        if os.path.exists("ple_lint.py"):
-            output, code = run_command(f"{sys.executable} ple_lint.py")
+        lint_script = os.path.join("repo_validation", "ple_lint.py")
+        if os.path.exists(lint_script):
+            output, code = run_command(f"{sys.executable} {lint_script}")
             f.write(output)
         else:
-            f.write("ERROR: ple_lint.py not found.\n")
+            f.write(f"ERROR: {lint_script} not found.\n")
         f.write("========================================\n")
 
         # 2. Run Snippet Check
         f.write("Running Snippet Check...\n")
         print("Running Snippet Check...")
-        if os.path.exists("snippet_check.py"):
-            output, code = run_command(f"{sys.executable} snippet_check.py")
+        snippet_script = os.path.join("repo_validation", "snippet_check.py")
+        if os.path.exists(snippet_script):
+            output, code = run_command(f"{sys.executable} {snippet_script}")
             f.write(output)
         else:
-            f.write("ERROR: snippet_check.py not found.\n")
+            f.write(f"ERROR: {snippet_script} not found.\n")
         f.write("========================================\n")
 
         # 3. Java Compilation Check
