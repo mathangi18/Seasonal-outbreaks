@@ -1,0 +1,37 @@
+// ============================================================
+// ANYLOGIC PLE BUNDLE - ON STEP
+// ============================================================
+
+if (!setupDone) return;
+
+// 1. Step Engine
+simEngine.step();
+
+// 2. Update Visuals
+// Patients
+for (int i=0; i<simEngine.patients.size(); i++) {
+    Patient p = simEngine.patients.get(i);
+    if (i < patientShapes.size()) {
+        com.anylogic.engine.presentation.ShapeOval oval = (com.anylogic.engine.presentation.ShapeOval) patientShapes.get(i);
+        
+        // Update Pos
+        oval.setPos(p.x - PATIENT_RADIUS, p.y - PATIENT_RADIUS);
+        
+        // Update Color (Infection Status)
+        if (p.infected) {
+            oval.setFillColor(java.awt.Color.RED);
+        } else {
+            oval.setFillColor(java.awt.Color.GREEN);
+        }
+        
+        // Visibility (Hospitalized?)
+        oval.setVisible(!p.hospitalized);
+    }
+}
+
+// Scoreboard
+if (scoreboardText != null) {
+    int inf = simEngine.getInfectedCount();
+    int hosp = simEngine.getHospitalizedCount();
+    scoreboardText.setText("Infected: " + inf + " | Hospitalized: " + hosp);
+}

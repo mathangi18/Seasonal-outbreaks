@@ -1,0 +1,167 @@
+AL_SETUP_INSTRUCTIONS.txt
+===========================================================
+ ANYLOGIC PLE — TEAM SETUP INSTRUCTIONS
+ SeasonalOutbreaks Model (Shared Project Folder Method)
+===========================================================
+
+This guide explains how to open and work on the 
+SeasonalOutbreaks_AL model on your own computer exactly as 
+Mathangi last had it, including all runtime shapes, snippets, 
+and resources.
+
+-----------------------------------------------------------
+1. INSTALL REQUIREMENTS
+-----------------------------------------------------------
+You MUST install:
+
+1. AnyLogic 8.9.6 Personal Learning Edition (PLE)
+   Download: https://www.anylogic.com/downloads
+
+2. Java JDK 1.8 (OpenJDK or Oracle)
+   Required because AnyLogic 8.9 uses Java 8.
+
+3. Git (optional but recommended)
+   For syncing with the AG repo.
+
+-----------------------------------------------------------
+2. DOWNLOAD THE SHARED MODEL FOLDER
+-----------------------------------------------------------
+
+You will receive a ZIP file named:
+
+   SeasonalOutbreaks_AL_share.zip
+
+This contains the entire AnyLogic model folder including:
+
+   - SeasonalOutbreaks_AL.alp   (main model file)
+   - Presentation folder
+   - Resources folder
+   - Database folder
+   - Any helper Java code in default package
+
+IMPORTANT:
+Do NOT rename any of the internal folders.
+Do NOT move the .alp file outside its folder.
+
+-----------------------------------------------------------
+3. UNZIP THE PROJECT
+-----------------------------------------------------------
+
+Unzip the folder anywhere on your machine, e.g.:
+
+   C:\ALProjects\SeasonalOutbreaks_AL\
+or
+   ~/Documents/ALModels/SeasonalOutbreaks_AL/
+
+The folder MUST contain the file:
+   SeasonalOutbreaks_AL.alp
+
+-----------------------------------------------------------
+4. OPEN THE MODEL IN ANYLOGIC
+-----------------------------------------------------------
+
+In AnyLogic:
+   File → Open Model…
+   Navigate to: SeasonalOutbreaks_AL/
+   Select: SeasonalOutbreaks_AL.alp
+   Click OPEN
+
+The model should load immediately.
+
+-----------------------------------------------------------
+5. VERIFY THAT IT LOADED CORRECTLY
+-----------------------------------------------------------
+
+Check these three areas:
+
+A) Left Panel → Projects
+   You should see:
+      - Main
+      - Facility
+      - Patient
+      - ModelHelpers
+      - SimulationEngine
+
+B) Presentation → Main → Presentation → level
+   Should show runtime shape templates (if any):
+      - phcShape
+      - privateShape
+      - patientTemplate (optional)
+      - queueTextTemplate (optional)
+      - scoreboardTemplate (optional)
+
+C) Run Configuration → Main
+   Should exist without errors.
+
+-----------------------------------------------------------
+6. RUN THE SIMULATION
+-----------------------------------------------------------
+
+Click • Run → Main
+
+The console should print:
+   [AG] ON STARTUP: begin
+   [AG] simEngine created
+   ...
+   [AG] ON STARTUP complete. Patients = <N>
+
+If shapes do not appear or the model shows a blank screen,
+send a screenshot of:
+
+   - Console output
+   - Problems panel
+   - Project tree under Presentation → level
+
+so the team can continue from there.
+
+-----------------------------------------------------------
+7. EDITING & DEVELOPMENT NOTES
+-----------------------------------------------------------
+
+- AnyLogic PLE restricts certain APIs.
+- Only code inside Main → 
+     • “Additional class code”
+     • “On startup”
+     • “On step”
+  is executed.
+- Java helper classes MUST stay in default package.
+- Avoid enterprise-only APIs:
+     ShapeImage advanced constructors
+     Canvas
+     paint(Graphics2D)
+     getPresentation()
+     custom subclasses of Shape
+
+-----------------------------------------------------------
+8. SYNCING WITH GIT REPO
+-----------------------------------------------------------
+
+If the team uses the AG repo:
+
+1. Clone the repo:
+       git clone <repo-url>
+       cd repo/
+
+2. Read the docs:
+       - README_FOR_TEAM.md
+       - FEATURES_MASTER.txt
+       - PLE_LIMITS_AND_GUIDELINES.txt
+
+3. Java logic changes in the repo should be copied into:
+       AnyLogic → Main → Additional class code
+       AnyLogic → Main → On startup
+       AnyLogic → Main → On step
+
+-----------------------------------------------------------
+9. IF ANYTHING BREAKS
+-----------------------------------------------------------
+
+Send two things to the team lead:
+   - Screenshot of Problems pane
+   - Console output after pressing Run
+
+These two give 100% of the needed info to fix the model.
+
+===========================================================
+END OF FILE
+===========================================================

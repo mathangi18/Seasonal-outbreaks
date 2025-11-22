@@ -1,0 +1,21 @@
+Validation Report
+========================================
+Running PLE Lint...
+PASS: anylogic_ple_bundle/src/agents/Patient.java
+PASS: anylogic_ple_bundle/src/agents/Facility.java
+PASS: anylogic_ple_bundle/src/helpers/ModelHelpers.java
+PASS: anylogic_ple_bundle/src/engine/SimulationEngine.java
+ALL LINT CHECKS PASSED
+========================================
+Running Snippet Check...
+PASS: anylogic_ple_bundle/anylogic_snippets/AdditionalClassCode.txt
+PASS: anylogic_ple_bundle/anylogic_snippets/OnStartup.txt
+PASS: anylogic_ple_bundle/anylogic_snippets/OnStep.txt
+ALL SNIPPET CHECKS PASSED
+========================================
+Running Java Compilation Check...
+Compiling Java files...
+javac 17.0.17
+Java compilation SUCCESS.
+========================================
+Validation Complete.

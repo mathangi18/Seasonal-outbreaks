@@ -1,0 +1,22 @@
+TEAM_HANDBOOK — SeasonalOutbreaks Project
+
+Files provided under /Instructions:
+- how_to_anylogic_help.html
+- ple_limits_and_guidelines.txt
+- features_master.txt
+- seasonal_outbreak_revised.docx
+- seasonal_outbreak_revised.txt
+- al_setup_instructions.txt
+- seasonaloutbreaks_al.zip (full AnyLogic model folder zipped)
+
+How to open AnyLogic model:
+1. Download seasonaloutbreaks_al.zip from this folder.
+2. Unzip it anywhere.
+3. Open AnyLogic PLE 8.9.x.
+4. File → Open Model → Select the .alp file inside the unzipped folder.
+5. The model should run immediately if Java 8 (OpenJDK 1.8) is installed.
+
+Git workflow:
+- Work on feature branches.
+- Run ple_lint.py and snippet_check.py before commit (if repo contains them).
+- Submit PR to main.

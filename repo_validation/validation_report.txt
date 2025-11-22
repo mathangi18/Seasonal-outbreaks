@@ -1,0 +1,14 @@
+Validation Report
+========================================
+Running PLE Lint...
+ERROR: ple_lint.py not found.
+========================================
+Running Snippet Check...
+ERROR: snippet_check.py not found.
+========================================
+Running Java Compilation Check...
+Compiling Java files...
+javac 17.0.17
+Java compilation SUCCESS.
+========================================
+Validation Complete.

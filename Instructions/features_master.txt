@@ -1,0 +1,414 @@
+FEATURES_MASTER.txt
+====================
+
+FULL MASTER FEATURE LIST FOR ANYLOGIC PLE 8.9.6
+================================================
+This file merges:
+ - All implemented simulation features  
+ - All requested features  
+ - All A+B+C+D+E feature packs  
+ - All optional / advanced behaviors  
+ - PLE-safe notes for each feature  
+
+Structured into:
+  1. CORE SIMULATION  
+  2. VISUAL SYSTEM (PLE-SAFE)  
+  3. PATIENT LOGIC  
+  4. FACILITY & QUEUE LOGIC  
+  5. GAMEPLAY FEATURES  
+  6. AUDIO & FEEDBACK  
+  7. FEATURE PACKS (A+B+C+D+E) FULL DESCRIPTION  
+  8. BLOCKED FEATURES (NOT POSSIBLE IN PLE)  
+  9. FINAL GAMEPLAY SUMMARY  
+
+===================================================
+1. CORE SIMULATION
+===================================================
+These mechanisms are fully PLE-compatible:
+
+✔ Full Java-driven engine (SimulationEngine)  
+✔ World boundaries defined by WORLD_W x WORLD_H  
+✔ Smooth movement via On step recurrence (~0.1h)  
+✔ No Canvas, no GUI drawing → pure logic  
+✔ Position update, bouncing, facility targeting  
+✔ Deterministic + random movement modes  
+✔ Supports multiple facilities  
+✔ Supports large patient populations  
+
+===================================================
+2. VISUAL SYSTEM (PLE-SAFE)
+===================================================
+STRICT RULES FOLLOWED:
+----------------------
+✔ Only runtime-created shapes:
+    ShapeOval, ShapeRectangle, ShapeImage, ShapeText, ShapeGroup  
+
+✔ All visuals live under:
+    Main → Presentation → level  
+
+✔ 100% PLE-safe:
+    - No Canvas  
+    - No On draw  
+    - No paint(Graphics2D)  
+    - No custom Shape subclasses  
+    - No enterprise constructors  
+    - No getPresentation(), getModel()  
+
+VISUALS PROVIDED:
+------------------
+✔ Patients as ShapeOval (fallback)  
+✔ Patients as ShapeImage (if images available)  
+✔ Facilities as rectangles or PNG icons  
+✔ Color-coded health states:
+      susceptible → amber
+      infected → light red
+      contagious → saturated red
+      recovered → green
+
+✔ Pulsing facility color  
+✔ Queue counters above facilities  
+✔ Scoreboard ShapeText on screen  
+
+OPTIONAL VISUAL ENHANCEMENTS:
+------------------------------
+✔ Halo effect: extra soft oval behind patient  
+✔ Emoji icons / sprite PNGs  
+✔ Confusion bubbles “💫” for near-collisions  
+✔ Dark mode background  
+✔ Facility overload shaking  
+
+===================================================
+3. PATIENT LOGIC
+===================================================
+STATE MACHINE:
+---------------
+Each patient has:
+• susceptible  
+• infected  
+• contagious  
+• recovered  
+• hospitalized  
+• severity (0 mild, 1 moderate, 2 severe)
+
+MOVEMENT:
+----------
+✔ Wander movement  
+✔ Targeted movement toward facility  
+✔ Bouncing within world box  
+✔ Speed modified by severity  
+✔ Fear scatter: run away if contagious patient is near  
+
+INFECTION:
+-----------
+✔ Radius-based infection spread  
+✔ Incubation timer  
+✔ Contagious timer  
+✔ Recovery timer  
+✔ Recovered = immune  
+
+BEHAVIOR:
+----------
+✔ Stop moving when hospitalized (hide shape)  
+✔ Queue until space available  
+✔ Seek alternative facility if first is full  
+✔ Visual confusion bubble during collision events  
+
+ADVANCED OPTIONS:
+------------------
+✔ Personality profiles (fast, slow, chaotic)  
+✔ Flocking behavior  
+✔ Contact tracing logs  
+
+===================================================
+4. FACILITY & QUEUE LOGIC
+===================================================
+FACILITY OBJECT:
+----------------
+Properties:
+• x, y  
+• type (“PHC”, “Private”)  
+• capacity  
+• currentPatients  
+• queue size  
+• overload detection  
+
+FACILITY FEATURES:
+------------------
+✔ Nearest facility targeting  
+✔ Arrival threshold  
+✔ Hospitalization removes patient from field  
+✔ Dynamic queue text: “Q: 3/10”  
+✔ Facility pulses when crowded  
+✔ Facility full → sound + visual highlight  
+✔ Next-best facility fallback  
+
+ADVANCED OPTIONS:
+------------------
+✔ Multiple queues (triage, waiting, treatment)  
+✔ Doctor agent (service rate)  
+✔ Treatment delays & stochastic durations  
+
+===================================================
+5. GAMEPLAY FEATURES
+===================================================
+CURRENT GAME LOGIC:
+--------------------
+✔ Scoreboard on screen  
+✔ Points:
+     +10 per recovered  
+     -20 when facility overloaded  
+     -5 per new infection  
+
+✔ Global alarm when infections exceed threshold  
+✔ Real-time color cues  
+
+OPTIONAL GAMEPLAY (PLE-SAFE):
+------------------------------
+✔ Buttons (optional, but code-first preferred):
+     addPatients()
+     lockdownMode()
+     festivalMode()
+     spawnSpike()
+
+✔ Seasonal spikes  
+✔ Difficulty scaling  
+✔ Mobile unit ambulance  
+✔ Leaderboard system  
+✔ Achievements:
+     “Zero Spread Day”
+     “Crisis Controlled”
+     “Overflow Disaster”  
+
+===================================================
+6. AUDIO & FEEDBACK
+===================================================
+AUDIO SYSTEM:
+--------------
+✔ WAV playback via AudioSystem  
+✔ Fallback → Toolkit.beep()  
+
+EVENT SOUNDS:
+---------------
+✔ arrival.wav → patient admitted  
+✔ hosp_full.wav → facility full  
+✔ alarm.wav → outbreak uncontrolled  
+
+OPTIONAL:
+----------
+✔ “level-up” recovery sound  
+✔ festival-mode sound  
+✔ ambient low-volume hum  
+
+===================================================
+7. FEATURE PACKS A+B+C+D+E (FULL)
+===================================================
+
+A — FILM-MODE DRAMA PACK
+-------------------------
+✔ Infection halo  
+✔ Fear scatter (run away)  
+✔ Facility overload shaking  
+✔ Optional dark mode  
+✔ Cinematic color states  
+
+B — HEALTH SYSTEM SIM PACK
+----------------------------
+✔ Severity classes  
+✔ Facility switching when full  
+✔ Discharge + fade  
+✔ Staff efficiency modifier (optional)
+
+C — GAME MODE PACK
+-------------------
+✔ Scoring system  
+✔ Spawn/festival/lockdown toggles  
+✔ Random outbreak events  
+
+D — DATA ANALYTICS PACK
+-------------------------
+✔ TimePlots / XYPlots (simple PLE-safe)  
+✔ CSV logging of patient outcomes  
+✔ Weekly summary statistics  
+
+E — CUTE MODE PACK
+--------------------
+✔ Emoji-based patients  
+✔ Emoji facilities  
+✔ Confusion animation  
+✔ Mini-icons everywhere  
+
+===================================================
+8. FEATURES BLOCKED IN PLE (DO NOT ATTEMPT)
+===================================================
+✘ Canvas  
+✘ On draw  
+✘ paint(Graphics2D)  
+✘ Custom Shape subclasses  
+✘ Convert shapes to Java  
+✘ getPresentation(), getModel()  
+✘ Enterprise-only ShapeImage constructors  
+✘ Multiple presentation layers  
+✘ package statements in Java  
+
+===================================================
+9. FINAL GAMEPLAY SUMMARY
+===================================================
+Your final target system combines:
+
+► MOVEMENT  
+   - wandering/towards facility  
+   - bouncing  
+   - severity-based speed  
+   - fear reaction  
+
+► INFECTION MODEL  
+   - radius spread  
+   - incubation → contagious → recovery  
+   - severity classification  
+
+► QUEUES  
+   - nearest facility  
+   - capacity  
+   - overflow & switching  
+   - hospitalization  
+
+► VISUALS  
+   - color states  
+   - halos  
+   - icons  
+   - scoreboard  
+   - pulsing facilities  
+
+► FEEDBACK  
+   - dynamic scoring  
+   - alarms  
+   - full audio system  
+   - confusion icons  
+
+This entire system is 100% PLE-safe:
+ - No Canvas  
+ - No paint()  
+ - No packages  
+ - No enterprise APIs  
+ - All visuals are runtime-created  
+===================================================
+10. GLOBAL AESTHETIC & AUTOMATION REQUIREMENT
+===================================================
+This simulation must behave visually like a CLEAN, SMOOTH, STREAM-WORTHY GAME.
+
+To guarantee this, any AI agent involved in development (AG, ChatGPT, or others)
+must follow these rules when adding, generating, or selecting ANY of the following:
+
+   • Sounds (arrival, alarms, notifications)
+   • Shape images (patients, facilities, icons)
+   • Animations (movement, halo effects, pulses)
+   • Visual assets (PNG/WEBP resources)
+   • Audio assets (WAV/OGG resources)
+
+REQUIREMENTS FOR ALL AI-SELECTED/GATHERED ASSETS:
+--------------------------------------------------
+1) **Aesthetic Quality**
+   - Assets must be cute, clean, soft-edged, and non-pixelated.
+   - No harsh neon, no glitchy edges.
+   - Pixel scaling must never break or appear blurry when resized.
+
+2) **Sound Quality**
+   - Sounds must resemble mobile notification tones:
+        • short
+        • clean
+        • pleasant
+        • non-intrusive
+   - No loud alarms unless specifically tagged as EMERGENCY.
+   - All audio must be normalized to avoid volume spikes.
+
+3) **Smooth Character Movement**
+   - Movement must appear like a real-time game:
+        • no jitter
+        • no teleport jumps
+        • constant frame-like updates
+   - Halo/emoji animations must be smooth and fade/slide cleanly.
+
+4) **Perfect Screen Fit**
+   - The simulation must ALWAYS fit cleanly inside the visible window:
+        WORLD_W and WORLD_H values must match the Presentation → level size.
+   - Experiment window size must be large enough to show the entire world.
+   - No clipping, cropping, or partial visibility of patients or facilities.
+
+5) **Game-Like Presentation**
+   - Overall look must resemble a "live game being streamed."
+   - Facilities pulse, patients move fluidly, infection halos glow softly.
+   - Visual clarity must be maintained even with many agents on screen.
+
+6) **Feature Panels (Open/Close Tabs)**
+   - Game features like Scoreboard, Queues, System Stats, and Alerts
+     must be modular and act like “panels”:
+        • Each panel should be easily showable/hideable via a code flag.
+        • Example:
+              SHOW_SCOREBOARD = true
+              SHOW_QUEUE_PANEL = false
+        • These panels must not clutter the play area.
+
+7) **Scoreboard as UI Panel**
+   - The scoreboard (+10 recovered, -20 overloaded, -5 new infections)
+     must appear as a neat, floating UI element in the corner.
+   - It must be:
+        • readable
+        • minimalistic
+        • non-obstructive
+        • smoothly update every tick
+
+8) **AI Automation Requirement**
+   - Any AI agent modifying or extending the model MUST:
+        • auto-select appropriate sounds/icons without user micromanagement
+        • auto-generate fallback assets if files missing
+        • ensure replacements remain cute, soft, and high-quality
+        • ensure shapes don’t deform when scaled
+        • validate that movements & visuals remain smooth
+        • validate that screen-space fits cleanly before finalizing changes
+
+This ensures the simulation always remains:
+   ✔ professional  
+   ✔ cute  
+   ✔ game-like  
+   ✔ clean  
+   ✔ fully viewable on any display  
+   ✔ smooth as an actual live-streamed game  
+=====================================================================
+USER PREFERENCE NOTE — IMPLEMENT OPTIONS B, C, D, AND FAIL-SAFE F
+=====================================================================
+
+The user prefers the following features to be implemented:
+
+**B — Code-first auto-scaling (MANDATORY)**
+- Auto-detect the actual `level` size (reflection-based, defensive).
+- Compute scale factor between DESIRED_W/H and actual size.
+- Scale all coordinates and sizes via helpers:
+      sx(x), sy(y), ss(size)
+- Scale patient radius and speeds automatically.
+- No UI resizing required; simulation must fit screen via code only.
+- 100% PLE-safe (no Canvas, no paint, no subclassing).
+
+**C — Visual smoothing (MANDATORY)**
+- Smaller per-step movement for smooth animation.
+- Cap max movement change to remove teleportation.
+- Optional pulse effects with low amplitude.
+- Make character movement look like a clean real-time game.
+
+**D — Modular panels / scoreboard (MANDATORY)**
+- Scoreboard, queue panel, system stats must be modular panels.
+- Each panel must be toggled with code flags:
+      SHOW_SCOREBOARD, SHOW_QUEUE_PANEL, SHOW_STATS
+- Panels must be built as ShapeGroup overlays.
+- Panels must use sx/sy/ss scaling to fit any screen.
+
+**F — Fail-safe fallback (OPTIONAL but MUST exist)**
+- If auto-scaling fails or viewport too small:
+      PATIENT_RADIUS = 3.0
+      PATIENT_BASE_SPEED = 1.8
+      WORLD_W = 600
+      WORLD_H = 380
+- This ensures simulation never clips or becomes unreadable.
+
+===================================================
+END OF FILE
+===================================================

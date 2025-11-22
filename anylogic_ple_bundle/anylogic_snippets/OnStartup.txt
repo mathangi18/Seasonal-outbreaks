@@ -1,0 +1,69 @@
+// ============================================================
+// ANYLOGIC PLE BUNDLE - ON STARTUP
+// ============================================================
+
+traceln("--- STARTING MINIMAL PLE SIMULATION ---");
+
+// 1. Init Engine
+simEngine = new SimulationEngine(800, 600);
+
+// 2. Add Facilities
+// PHC
+Facility phc = new Facility(100, 100, "PHC", 10);
+simEngine.addFacility(phc);
+// Private
+Facility pvt = new Facility(600, 400, "Private", 50);
+simEngine.addFacility(pvt);
+
+// 3. Add Patients
+for (int i=0; i<NUM_PATIENTS; i++) {
+    double x = ModelHelpers.randomInRange(0, 800);
+    double y = ModelHelpers.randomInRange(0, 600);
+    Patient p = new Patient(x, y);
+    // Random velocity
+    p.vx = ModelHelpers.randomInRange(-2, 2);
+    p.vy = ModelHelpers.randomInRange(-2, 2);
+    // Infect a few
+    if (i < 3) p.infected = true;
+    
+    simEngine.addPatient(p);
+}
+
+// 4. Create Visuals (Runtime Shapes)
+com.anylogic.engine.presentation.ShapeGroup group = getPresentation();
+
+// Facilities
+for (Facility f : simEngine.facilities) {
+    com.anylogic.engine.presentation.ShapeRectangle rect = new com.anylogic.engine.presentation.ShapeRectangle(
+        group, true, f.x, f.y, 0.0, 
+        f.type.equals("PHC") ? 20.0 : 40.0, 
+        f.type.equals("PHC") ? 20.0 : 40.0,
+        f.type.equals("PHC") ? java.awt.Color.BLUE : java.awt.Color.RED,
+        java.awt.Color.BLACK, 1.0, 
+        com.anylogic.engine.presentation.LineStyle.SOLID
+    );
+    facilityShapes.add(rect);
+}
+
+// Patients
+for (Patient p : simEngine.patients) {
+    com.anylogic.engine.presentation.ShapeOval oval = new com.anylogic.engine.presentation.ShapeOval(
+        group, true, p.x, p.y, 0.0, 
+        PATIENT_RADIUS*2, PATIENT_RADIUS*2,
+        p.infected ? java.awt.Color.RED : java.awt.Color.GREEN,
+        java.awt.Color.BLACK, 1.0,
+        com.anylogic.engine.presentation.LineStyle.SOLID
+    );
+    patientShapes.add(oval);
+}
+
+// Scoreboard
+scoreboardText = new com.anylogic.engine.presentation.ShapeText(
+    group, true, 10.0, 10.0, 0.0, 
+    java.awt.Color.BLACK, "Stats: Loading...",
+    new java.awt.Font("SansSerif", java.awt.Font.BOLD, 14),
+    com.anylogic.engine.presentation.ShapeText.ALIGNMENT_LEFT
+);
+
+setupDone = true;
+traceln("Setup Complete.");

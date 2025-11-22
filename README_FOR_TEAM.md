@@ -3,27 +3,25 @@
 ## Overview
 This repository contains the source code and resources for the Seasonal Outbreaks AnyLogic model. This package is prepared for AnyLogic Personal Learning Edition (PLE) 8.9.6.
 
-## Documentation
-The following documentation is available in the `Instructions/` folder:
-*   `how_to_anylogic_help.html`
-*   `ple_limits_and_guidelines.txt`
-*   `features_master.txt`
-*   `seasonal_outbreak_revised.docx`
-*   `seasonal_outbreak_revised.txt`
-*   `al_setup_instructions.txt`
-*   `seasonaloutbreaks_al.zip`
-*   `TEAM_HANDBOOK.txt`
-
-**All documentation files are PRESENT.**
-
 ## Repository Structure
 ```
 .
-├── README.md                   # This file
-├── Instructions/               # Documentation and Handover Files
+├── README_FOR_TEAM.md          # This file
+├── README_ACTION.txt           # Quick start checklist
+├── install_prereqs.md          # Required software
+├── handover_tasks.md           # Tasks for the next person
 ├── snippets/                   # Code snippets for AnyLogic
+│   ├── AdditionalClassCode.txt
+│   ├── OnStartup.txt
+│   └── OnStep.txt
 ├── resources/                  # Images and sounds
+│   ├── images/
+│   └── sounds/
 ├── repo_validation/            # Validation scripts
+│   ├── run_validation.py
+│   ├── ple_lint.py
+│   ├── snippet_check.py
+│   └── validation_report.txt
 └── src/                        # Java source files (reference)
 ```
 
@@ -44,6 +42,7 @@ See `install_prereqs.md` for details.
     ```bash
     git clone <repo-url>
     cd Seasonal-outbreaks
+    git checkout handover/ag-handover-2025-11-22
     ```
 
 2.  **Run Validation:**

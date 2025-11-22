@@ -1,0 +1,41 @@
+Branch: ag/fix-ple-java-files
+Commit: [Pending Commit]
+
+================================================================================
+Per-File Changes
+================================================================================
+1. anylogic_ple_bundle/src/agents/Patient.java
+   - Removed: package agents;
+   - Result: Default package POJO.
+
+2. anylogic_ple_bundle/src/agents/Facility.java
+   - Removed: package agents;
+   - Result: Default package POJO.
+
+3. anylogic_ple_bundle/src/helpers/ModelHelpers.java
+   - Removed: package helpers;
+   - Result: Default package Utility class.
+
+4. anylogic_ple_bundle/src/engine/SimulationEngine.java
+   - Removed: package engine;
+   - Removed imports: agents.Patient, agents.Facility, helpers.ModelHelpers
+   - Result: Default package Engine class using other default package classes.
+
+================================================================================
+Compilation Check
+================================================================================
+Command: javac anylogic_ple_bundle/src/agents/Patient.java anylogic_ple_bundle/src/agents/Facility.java anylogic_ple_bundle/src/helpers/ModelHelpers.java anylogic_ple_bundle/src/engine/SimulationEngine.java
+Result: SUCCESS (Exit Code 0)
+Verdict: COMPILE_OK
+
+================================================================================
+Test Script Output
+================================================================================
+Running Test Script...
+Looking for images in: D:\Repos\Seasonal-outbreaks\anylogic_ple_bundle\resources\images
+OK: patient_doll.png found.
+OK: hospital_small.png found.
+OK: hospital_big.png found.
+OK: ambulance.png found.
+Image validation PASSED.
+OK: CSV writing succeeded at D:\Repos\Seasonal-outbreaks\anylogic_ple_bundle\test_output.csv
