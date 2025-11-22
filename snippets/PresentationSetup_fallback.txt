@@ -1,0 +1,8 @@
+// ============================================================
+// PRESENTATION SETUP - FALLBACK (CUSTOM PAINTER)
+// ============================================================
+// This logic is embedded in AdditionalClassCode.txt as 'enableFallbackPainter()'
+// and the 'CustomPainter' inner class.
+
+// To use manually:
+enableFallbackPainter();

@@ -1,0 +1,29 @@
+// ============================================================
+// ANYLOGIC PLE BUNDLE - ADDITIONAL CLASS CODE
+// ============================================================
+
+// -- CONSTANTS --
+public static final int NUM_PATIENTS = 50;
+public static final double PATIENT_RADIUS = 5.0;
+public static final double HOSPITAL_SIZE = 20.0;
+
+// -- STATE --
+public boolean setupDone = false;
+public SimulationEngine simEngine;
+
+// -- VISUALS --
+// We use Object list to avoid import issues in snippets, but we cast to Shape in code
+public java.util.List<Object> patientShapes = new java.util.ArrayList<>();
+public java.util.List<Object> facilityShapes = new java.util.ArrayList<>();
+public com.anylogic.engine.presentation.ShapeText scoreboardText;
+
+// -- SCALING HELPERS --
+// Simple identity for now, but good practice to have
+public double sx(double v) { return v; }
+public double sy(double v) { return v; }
+public double ss(double v) { return v; }
+
+// -- LOGGING --
+public void log(String msg) {
+    traceln("[PLE-MINIMAL] " + msg);
+}
